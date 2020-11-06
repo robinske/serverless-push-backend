@@ -37,8 +37,8 @@ exports.handler = function (context, event, callback) {
   if (typeof event.identity === 'undefined') {
     response.setBody({
       "error": {
-        "message": "Missing parameter; please provide a phone number or email.",
-        "moreInfo": "https://www.twilio.com/docs/verify/api/verification"
+        "message": "Missing parameter; please provide a unique user identity.",
+        "moreInfo": "https://www.twilio.com/docs/verify/api/access-token"
       }
     })
     response.setStatusCode(400);
@@ -50,7 +50,7 @@ exports.handler = function (context, event, callback) {
 
   client.verify.services(service)
     .accessTokens
-    .create({ identity: 'User_UUID', factorType: 'push' })
+    .create({ identity: event.identity, factorType: 'push' })
     .then(resp => {
       response.setStatusCode(200)
       response.setBody({
