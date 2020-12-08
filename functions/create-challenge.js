@@ -33,17 +33,17 @@ exports.handler = function (context, event, callback) {
   // response.appendHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   // response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (typeof event.entity === "undefined") {
-    response.setBody({
-      error: {
-        message: "Missing parameter; please provide an entity.",
-        moreInfo:
-          "https://www.twilio.com/docs/verify/api/challenge#create-a-challenge-resource",
-      },
-    });
-    response.setStatusCode(400);
-    return callback(null, response);
-  }
+  // if (typeof event.entity === "undefined") {
+  //   response.setBody({
+  //     error: {
+  //       message: "Missing parameter; please provide an entity.",
+  //       moreInfo:
+  //         "https://www.twilio.com/docs/verify/api/challenge#create-a-challenge-resource",
+  //     },
+  //   });
+  //   response.setStatusCode(400);
+  //   return callback(null, response);
+  // }
 
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
