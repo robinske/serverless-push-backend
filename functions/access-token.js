@@ -60,10 +60,10 @@ exports.handler = function (context, event, callback) {
   client.verify
     .services(serviceSid)
     .accessTokens.create({ identity, factorType })
-    .then((token) => {
+    .then((resp) => {
       response.setStatusCode(200);
       response.setBody({
-        ...token,
+        token: resp.token,
         identity,
         serviceSid,
         factorType,

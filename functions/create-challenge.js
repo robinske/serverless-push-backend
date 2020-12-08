@@ -33,22 +33,34 @@ exports.handler = function (context, event, callback) {
   // response.appendHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   // response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // if (typeof event.entity === "undefined") {
-  //   response.setBody({
-  //     error: {
-  //       message: "Missing parameter; please provide an entity.",
-  //       moreInfo:
-  //         "https://www.twilio.com/docs/verify/api/challenge#create-a-challenge-resource",
-  //     },
-  //   });
-  //   response.setStatusCode(400);
-  //   return callback(null, response);
-  // }
+  if (typeof event.identity === "undefined") {
+    response.setBody({
+      error: {
+        message: "Missing parameter; please provide an identity.",
+        moreInfo:
+          "https://www.twilio.com/docs/verify/api/challenge#create-a-challenge-resource",
+      },
+    });
+    response.setStatusCode(400);
+    return callback(null, response);
+  }
+
+  if (typeof event.message === "undefined") {
+    response.setBody({
+      error: {
+        message: "Missing parameter; please provide a message.",
+        moreInfo:
+          "https://www.twilio.com/docs/verify/api/challenge#create-a-challenge-resource",
+      },
+    });
+    response.setStatusCode(400);
+    return callback(null, response);
+  }
 
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
 
-  const entity =
+  const identity =
     "1470a82d240c116320935c2dca3fa62de397fd24bdbbc0481703c082e84a2846";
   const factorSid = "YF033b298696c8954f8ed0e0b8b3d3507b";
   const message = "Login request from Twilio Functions";
@@ -59,7 +71,7 @@ exports.handler = function (context, event, callback) {
 
   client.verify
     .services(service)
-    .entities(entity)
+    .entities(identity)
     .challenges.create({
       factorSid: factorSid,
       "details.message": message,
