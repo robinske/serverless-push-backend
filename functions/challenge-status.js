@@ -55,12 +55,6 @@ exports.handler = function (context, event, callback) {
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
 
-  // const factorSid = "YF033b298696c8954f8ed0e0b8b3d3507b";
-  const fields = {
-    Location: "Brooklyn, NY",
-    "IP Address": "70.23.49.231",
-  };
-
   client.verify
     .services(service)
     .entities(event.identity)
