@@ -50,8 +50,7 @@ exports.handler = function (context, event, callback) {
   // response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   requiredParameter(event.identity, "identity", response, callback);
-  requiredParameter(event.factorSid, "factorSid", response, callback);
-  requiredParameter(event.message, "message", response, callback);
+  requiredParameter(event.sid, "sid", response, callback);
 
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
@@ -65,11 +64,8 @@ exports.handler = function (context, event, callback) {
   client.verify
     .services(service)
     .entities(event.identity)
-    .challenges.create({
-      factorSid: event.factorSid,
-      "details.message": event.message,
-      "details.fields": fields,
-    })
+    .challenges(event.sid)
+    .fetch()
     .then((challenge) => {
       response.setStatusCode(200);
       response.setBody(challenge);

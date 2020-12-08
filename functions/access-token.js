@@ -26,10 +26,6 @@
  */
 var crypto = require("crypto");
 
-function generateSHA256(input) {
-  return crypto.createHash("sha256").update(input).digest("hex");
-}
-
 exports.handler = function (context, event, callback) {
   const response = new Twilio.Response();
   response.appendHeader("Content-Type", "application/json");
@@ -52,9 +48,10 @@ exports.handler = function (context, event, callback) {
 
   const client = context.getTwilioClient();
   const serviceSid = context.VERIFY_SERVICE_SID;
-  const identity = context.HASH_IDENTITY
-    ? generateSHA256(event.identity)
-    : event.identity;
+  const identity = crypto
+    .createHash("sha256")
+    .update(event.identity)
+    .digest("hex");
   const factorType = "push";
 
   client.verify

@@ -1,1 +1,113 @@
-<html></html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Authentication with Twilio Verify Push</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Twilio Verify Push</h2>
+      <p>
+        This example shows how to use
+        <a href="https://twilio.com/docs/verify/push">Twilio Verify Push</a>
+        and Twilio functions for serverless user verification.
+      </p>
+      <div class="content">
+        <form id="login">
+          <div class="form-group email-input">
+            <p>Enter your email:</p>
+            <input type="text" id="email" class="form-control" />
+          </div>
+          <div class="form-group">
+            <input type="submit" class="btn btn-primary" value="Verify" />
+          </div>
+        </form>
+        <span id="push-message"></span>
+      </div>
+    </div>
+    <!-- EDIT_CODE -->
+  </body>
+  <script>
+    function showMessage(alertType, message) {
+      var content = $("#push-message");
+      content.empty();
+      content.removeClass();
+      content.addClass(`text-${alertType}`).append(message);
+    }
+
+    function checkStatus(sid, identity) {
+      const statusData = new URLSearchParams({
+        sid: json.sid,
+        identity: json.identity,
+      });
+
+      const url = "./challenge-status";
+      url.search = statusData.toString();
+
+      fetch(url).then(({ status }) => {
+        if (status == "approved") {
+          showMessage("success", "Login request approved!");
+        } else if (status == "denied") {
+          showMessage("danger", "Login request denied!");
+        } else {
+          setTimeout(checkStatus(sid, identity), 15000);
+        }
+      });
+    }
+
+    $("#login").submit(function (event) {
+      event.preventDefault();
+
+      const identityData = new URLSearchParams({ identity: $("#email").val() });
+
+      fetch("./hash-identity", {
+        method: "POST",
+        body: identityData,
+      })
+        .then(({ identity }) => {
+          const hashedIdentity = json.identity;
+
+          // Twilio functions do not accept multipart/form-data
+          const data = new URLSearchParams();
+          data.append("identity", hashedIdentity);
+          data.append("factorSid", "YF033b298696c8954f8ed0e0b8b3d3507b");
+          data.append("message", "Login request from Owl Bank.");
+
+          return fetch("./create-challenge", {
+            method: "POST",
+            body: data,
+          });
+        })
+        .then(({ status, sid, identity, error }) => {
+          if (status === "pending") {
+            showMessage(
+              "success",
+              "Successfully sent push notification. Check your device."
+            );
+            checkStatus(sid, identity);
+          } else {
+            console.log(error);
+            showMessage(
+              "danger",
+              `${error.message} <a href="${error.moreInfo}">[more info]</a>`
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          showMessage("danger", "Error starting verification.");
+        });
+    });
+  </script>
+</html>
