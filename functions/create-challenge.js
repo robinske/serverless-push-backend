@@ -55,11 +55,6 @@ exports.handler = function (context, event, callback) {
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
 
-  const fields = [
-    ...(event.ip && { label: "IP", value: event.ip }),
-    ...(event.city && { label: "Location", value: event.city }),
-  ];
-
   client.verify
     .services(service)
     .entities(event.identity)
@@ -72,10 +67,6 @@ exports.handler = function (context, event, callback) {
           .challenges.create({
             factorSid: sid,
             "details.message": event.message,
-            "details.fields": [
-              { label: "Action", value: "Sign up in portal" },
-              { label: "Location", value: "California" },
-            ],
           })
           .then((challenge) => {
             response.setStatusCode(200);
