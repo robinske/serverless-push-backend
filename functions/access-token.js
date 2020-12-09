@@ -61,6 +61,7 @@ exports.handler = function (context, event, callback) {
       response.setStatusCode(200);
       response.setBody({
         token: resp.token,
+        serviceSid,
         identity,
         factorType,
       });
