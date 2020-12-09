@@ -65,6 +65,16 @@ exports.handler = function (context, event, callback) {
     .entities(event.identity)
     .factors.list({ limit: 20 })
     .then((factors) => {
+      if (factors.length === 0) {
+        response.setBody({
+          error: {
+            message:
+              "No factors found for identity. Register a factor before continuing.",
+            moreInfo: "https://www.twilio.com/docs/verify/api/factor",
+          },
+        });
+        callback(null, response);
+      }
       factors.forEach(({ sid }) =>
         client.verify
           .services(service)
