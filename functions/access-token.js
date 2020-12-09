@@ -1,5 +1,5 @@
 /**
- *  Requeset an Access Token
+ *  Request an Access Token
  *
  *
  *  Pre-requisites
@@ -14,6 +14,9 @@
  *  on Success:
  *  {
  *    "token": "eyJ6aXAiOiJERUYiLCJraWQiOiJTQVNfUzNfX19...."
+ *    "serviceSid": "VAxxx...",
+ *    "identity": "AXi7y....",
+ *    "factorType": "push"
  *  }
  *
  *  on Error:

@@ -1,14 +1,17 @@
 /**
- *  Requeset an Access Token
+ *  Create an authentication challenge
+ *
+ *  Sends a push notification to registered factor.
  *
  *
  *  Pre-requisites
  *  - Create a Verify Service (https://www.twilio.com/console/verify/services)
+ *  - Create a Factor on a device
  *
  *  Parameters
- *  - entity - required
- *  - factor_sid - required
- *
+ *  - identity - required
+ *  - message - required
+ *  - details like IP, Location, etc. - optional
  *
  *  Returns JSON
  *

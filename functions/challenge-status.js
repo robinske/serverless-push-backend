@@ -1,13 +1,16 @@
 /**
- *  Requeset an Access Token
+ *  Fetch the status of a challenge
+ *
+ *  Shows whether a challenge has been approved or denied. Can poll this endpoint once a challenge has been issued.
  *
  *
  *  Pre-requisites
  *  - Create a Verify Service (https://www.twilio.com/console/verify/services)
+ *  - Create a Challenge (https://www.twilio.com/docs/verify/api/challenge)
  *
  *  Parameters
- *  - entity - required
- *  - factor_sid - required
+ *  - identity - required
+ *  - sid - required - challenge SID
  *
  *
  *  Returns JSON
