@@ -101,6 +101,7 @@
               data.append("identity", identity);
               data.append("message", "Login request from Owl Bank.");
               data.append("location", location);
+              data.append("ip", ip);
 
               return fetch("./create-challenge", {
                 method: "POST",

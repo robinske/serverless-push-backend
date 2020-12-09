@@ -55,7 +55,10 @@ exports.handler = function (context, event, callback) {
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
 
-  const fields = [{ label: "Location", value: event.location }];
+  const fields = [
+    { label: "Public IP", value: event.ip },
+    { label: "Location", value: event.location },
+  ];
 
   client.verify
     .services(service)
