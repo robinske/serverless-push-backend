@@ -93,14 +93,20 @@
       })
         .then((resp) => resp.json())
         .then(({ identity }) => {
-          const data = new URLSearchParams();
-          data.append("identity", identity);
-          data.append("message", "Login request from Owl Bank.");
+          return fetch("https://ipapi.co/json/")
+            .then((resp) => resp.json())
+            .then(({ ip, city, region }) => {
+              const location = `${city}, ${region}`;
+              const data = new URLSearchParams();
+              data.append("identity", identity);
+              data.append("message", "Login request from Owl Bank.");
+              data.append("location", location);
 
-          return fetch("./create-challenge", {
-            method: "POST",
-            body: data,
-          });
+              return fetch("./create-challenge", {
+                method: "POST",
+                body: data,
+              });
+            });
         })
         .then((resp) => resp.json())
         .then(({ status, sid, identity, error }) => {
