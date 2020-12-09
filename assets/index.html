@@ -47,6 +47,8 @@
           <div class="form-group email-input">
             <p>Enter your email:</p>
             <input type="text" id="email" class="form-control" />
+            <p>Reason:</p>
+            <input type="text" id="reason" class="form-control" />
           </div>
           <div class="form-group">
             <input type="submit" class="btn btn-primary" value="Verify" />
@@ -99,7 +101,7 @@
               const location = `${city}, ${region}`;
               const data = new URLSearchParams();
               data.append("identity", identity);
-              data.append("message", "Login request from Owl Bank.");
+              data.append("message", $("#reason").val());
               data.append("location", location);
               data.append("ip", ip);
 
