@@ -72,7 +72,10 @@ exports.handler = function (context, event, callback) {
           .challenges.create({
             factorSid: sid,
             "details.message": event.message,
-            "details.fields": fields,
+            "details.fields": [
+              { label: "Action", value: "Sign up in portal" },
+              { label: "Location", value: "California" },
+            ],
           })
           .then((challenge) => {
             response.setStatusCode(200);
@@ -83,7 +86,6 @@ exports.handler = function (context, event, callback) {
             console.log(error);
             response.setStatusCode(error.status);
             response.setBody({
-              success: false,
               error: {
                 message: error.message,
                 moreInfo: error.moreInfo,
