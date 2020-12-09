@@ -95,7 +95,6 @@
         .then(({ identity }) => {
           const data = new URLSearchParams();
           data.append("identity", identity);
-          data.append("factorSid", "YF033b298696c8954f8ed0e0b8b3d3507b");
           data.append("message", "Login request from Owl Bank.");
 
           return fetch("./create-challenge", {
