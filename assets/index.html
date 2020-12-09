@@ -93,15 +93,20 @@
       })
         .then((resp) => resp.json())
         .then(({ identity }) => {
+          // return fetch("https://ipapi.co/json/")
+          //   .then((resp) => resp.json())
+          //   .then(({ ip, city }) => {
           const data = new URLSearchParams();
           data.append("identity", identity);
-          data.append("factorSid", "YF033b298696c8954f8ed0e0b8b3d3507b");
           data.append("message", "Login request from Owl Bank.");
+          // data.append("ip", ip);
+          // data.append("city", city);
 
           return fetch("./create-challenge", {
             method: "POST",
             body: data,
           });
+          // });
         })
         .then((resp) => resp.json())
         .then(({ status, sid, identity, error }) => {

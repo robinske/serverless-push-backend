@@ -50,41 +50,47 @@ exports.handler = function (context, event, callback) {
   // response.appendHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   requiredParameter(event.identity, "identity", response, callback);
-  requiredParameter(event.factorSid, "factorSid", response, callback);
   requiredParameter(event.message, "message", response, callback);
 
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
 
-  // const factorSid = "YF033b298696c8954f8ed0e0b8b3d3507b";
-  const fields = {
-    Location: "Brooklyn, NY",
-    "IP Address": "70.23.49.231",
-  };
+  const fields = [
+    ...(event.ip && { label: "IP", value: event.ip }),
+    ...(event.city && { label: "Location", value: event.city }),
+  ];
 
   client.verify
     .services(service)
     .entities(event.identity)
-    .challenges.create({
-      factorSid: event.factorSid,
-      "details.message": event.message,
-      "details.fields": fields,
-    })
-    .then((challenge) => {
-      response.setStatusCode(200);
-      response.setBody(challenge);
-      callback(null, response);
-    })
-    .catch((error) => {
-      console.log(error);
-      response.setStatusCode(error.status);
-      response.setBody({
-        success: false,
-        error: {
-          message: error.message,
-          moreInfo: error.moreInfo,
-        },
-      });
-      callback(null, response);
+    .factors.list({ limit: 20 })
+    .then((factors) => {
+      factors.forEach(({ sid }) =>
+        client.verify
+          .services(service)
+          .entities(event.identity)
+          .challenges.create({
+            factorSid: sid,
+            "details.message": event.message,
+            "details.fields": fields,
+          })
+          .then((challenge) => {
+            response.setStatusCode(200);
+            response.setBody(challenge);
+            callback(null, response);
+          })
+          .catch((error) => {
+            console.log(error);
+            response.setStatusCode(error.status);
+            response.setBody({
+              success: false,
+              error: {
+                message: error.message,
+                moreInfo: error.moreInfo,
+              },
+            });
+            callback(null, response);
+          })
+      );
     });
 };
