@@ -68,23 +68,6 @@
           <div class="form-group details">
             <label>Details</label>
             <p>Arbitrary key-value pairs to display with the verification.</p>
-            <div class="row form-group">
-              <div class="col-xs-4">
-                <input
-                  type="text"
-                  class="form-control detail"
-                  placeholder="label"
-                />
-              </div>
-              <div class="col-xs-4">
-                <input
-                  type="text"
-                  class="form-control detail"
-                  placeholder="value"
-                />
-              </div>
-              <button class="close">&times;</button>
-            </div>
           </div>
           <div class="form-group">
             <a class="btn-link" href="#" role="button">Add more details</a>
@@ -104,10 +87,6 @@
     <!-- EDIT_CODE -->
   </body>
   <script>
-    $(".close").click(function () {
-      $(this).closest("div").remove();
-    });
-
     function showMessage(alertType, message) {
       var content = $("#push-message");
       content.empty();
@@ -160,6 +139,9 @@
 
       registerCloseStatus();
     }
+
+    // seed view with one row by default
+    addDetailRow();
 
     $(".btn-link").click(function () {
       addDetailRow();
