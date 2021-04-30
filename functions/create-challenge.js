@@ -54,18 +54,20 @@ exports.handler = function (context, event, callback) {
 
   requiredParameter(event.identity, "identity", response, callback);
   requiredParameter(event.message, "message", response, callback);
+  requiredParameter(event.message, "factor", response, callback);
 
   const client = context.getTwilioClient();
   const service = context.VERIFY_SERVICE_SID;
 
-  const fields = [
-    { label: "Public IP", value: event.ip },
-    { label: "Location", value: event.location },
-  ];
+  let { identity, message, ...details } = event;
+  let fields = [];
+  for (const [key, value] of Object.entries(details)) {
+    fields.push({ label: key, value: value });
+  }
 
   client.verify
     .services(service)
-    .entities(event.identity)
+    .entities(identity)
     .factors.list({ limit: 20 })
     .then((factors) => {
       if (factors.length === 0) {
@@ -81,10 +83,10 @@ exports.handler = function (context, event, callback) {
       factors.forEach(({ sid }) =>
         client.verify
           .services(service)
-          .entities(event.identity)
+          .entities(identity)
           .challenges.create({
             factorSid: sid,
-            "details.message": event.message,
+            "details.message": message,
             "details.fields": fields,
           })
           .then((challenge) => {

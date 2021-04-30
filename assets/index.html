@@ -24,6 +24,10 @@
         animation: spin 1s linear infinite;
       }
 
+      .close {
+        position: absolute;
+      }
+
       @keyframes spin {
         0% {
           transform: rotate(0deg);
@@ -44,14 +48,53 @@
       </p>
       <div class="content">
         <form id="login">
-          <div class="form-group email-input">
-            <p>Enter your email:</p>
-            <input type="text" id="email" class="form-control" />
-            <p>Reason:</p>
-            <input type="text" id="reason" class="form-control" />
+          <div class="form-group">
+            <label for="identity">Identity</label>
+            <input type="text" id="identity" class="form-control" />
           </div>
           <div class="form-group">
-            <input type="submit" class="btn btn-primary" value="Verify" />
+            <label for="message">Message</label>
+            <input type="text" id="message" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label for="factor">Factor SID</label>
+            <input
+              type="text"
+              id="factor"
+              class="form-control"
+              placeholder="YFXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            />
+          </div>
+          <div class="form-group details">
+            <label>Details</label>
+            <p>Arbitrary key-value pairs to display with the verification.</p>
+            <div class="row form-group">
+              <div class="col-xs-4">
+                <input
+                  type="text"
+                  class="form-control detail"
+                  placeholder="label"
+                />
+              </div>
+              <div class="col-xs-4">
+                <input
+                  type="text"
+                  class="form-control detail"
+                  placeholder="value"
+                />
+              </div>
+              <button class="close">&times;</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <a class="btn-link" href="#" role="button">Add more details</a>
+          </div>
+          <div class="form-group">
+            <input
+              type="submit"
+              class="btn btn-primary"
+              value="Create challenge"
+            />
           </div>
         </form>
         <div id="loading"></div>
@@ -61,6 +104,10 @@
     <!-- EDIT_CODE -->
   </body>
   <script>
+    $(".close").click(function () {
+      $(this).closest("div").remove();
+    });
+
     function showMessage(alertType, message) {
       var content = $("#push-message");
       content.empty();
@@ -84,26 +131,80 @@
         });
     }
 
+    function registerCloseStatus() {
+      $(".close").click(function () {
+        $(this).closest("div").remove();
+      });
+    }
+
+    function addDetailRow() {
+      $(".details").append(
+        `<div class="row form-group">
+          <div class="col-xs-4">
+            <input
+              type="text"
+              class="form-control detail"
+              placeholder="label"
+            />
+          </div>
+          <div class="col-xs-4">
+            <input
+              type="text"
+              class="form-control detail"
+              placeholder="value"
+            />
+          </div>
+          <button class="close">&times;</button>
+        </div>`
+      );
+
+      registerCloseStatus();
+    }
+
+    $(".btn-link").click(function () {
+      addDetailRow();
+    });
+
     $("#login").submit(function (event) {
       event.preventDefault();
 
-      const identityData = new URLSearchParams({ identity: $("#email").val() });
+      const identityData = new URLSearchParams({
+        identity: $("#identity").val(),
+      });
 
       fetch("./hash-identity", {
         method: "POST",
         body: identityData,
       })
-        .then((resp) => resp.json())
+        .then((resp) => {
+          console.log(resp);
+          return resp.json();
+        })
         .then(({ identity }) => {
+          console.log(identity);
           return fetch("https://ipapi.co/json/")
             .then((resp) => resp.json())
-            .then(({ ip, city, region }) => {
-              const location = `${city}, ${region}`;
+            .then(({ ip, city }) => {
+              const location = `${city}`;
               const data = new URLSearchParams();
               data.append("identity", identity);
-              data.append("message", $("#reason").val());
+              data.append("message", $("#message").val());
+              data.append("factor", $("#factor").val());
               data.append("location", location);
               data.append("ip", ip);
+
+              var details = $(".detail")
+                .toArray()
+                .map((detail) => detail.value)
+                .reduce(function (result, value, index, array) {
+                  if (index % 2 === 0)
+                    result.push(array.slice(index, index + 2));
+                  return result;
+                }, []);
+
+              details.forEach((pair) => {
+                if (pair[0] !== "") data.append(pair[0], pair[1]);
+              });
 
               return fetch("./create-challenge", {
                 method: "POST",
