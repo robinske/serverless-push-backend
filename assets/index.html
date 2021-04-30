@@ -54,7 +54,12 @@
           </div>
           <div class="form-group">
             <label for="message">Message</label>
-            <input type="text" id="message" class="form-control" />
+            <input
+              type="text"
+              id="message"
+              class="form-control"
+              value="Please verify login attempt"
+            />
           </div>
           <div class="form-group">
             <label for="factor">Factor SID</label>
@@ -116,7 +121,9 @@
       });
     }
 
-    function addDetailRow() {
+    function addDetailRow(k, v) {
+      let labelValue = k != undefined ? `value="${k}" readonly` : "";
+      let valueValue = v != undefined ? `value="${v}"` : "";
       $(".details").append(
         `<div class="row form-group">
           <div class="col-xs-4">
@@ -124,6 +131,7 @@
               type="text"
               class="form-control detail"
               placeholder="label"
+              ${labelValue}
             />
           </div>
           <div class="col-xs-4">
@@ -131,6 +139,7 @@
               type="text"
               class="form-control detail"
               placeholder="value"
+              ${valueValue}
             />
           </div>
           <button class="close">&times;</button>
@@ -140,8 +149,17 @@
       registerCloseStatus();
     }
 
-    // seed view with one row by default
-    addDetailRow();
+    // seed details
+    fetch("https://ipapi.co/json/")
+      .then((resp) => resp.json())
+      .then(({ ip, city }) => {
+        let location = `${city}`;
+        addDetailRow("Location", city);
+        addDetailRow("IP Address", ip);
+      })
+      .catch((err) => {
+        addDetailRow();
+      });
 
     $(".btn-link").click(function () {
       addDetailRow();
@@ -163,36 +181,27 @@
           return resp.json();
         })
         .then(({ identity }) => {
-          console.log(identity);
-          return fetch("https://ipapi.co/json/")
-            .then((resp) => resp.json())
-            .then(({ ip, city }) => {
-              const location = `${city}`;
-              const data = new URLSearchParams();
-              data.append("identity", identity);
-              data.append("message", $("#message").val());
-              data.append("factor", $("#factor").val());
-              data.append("location", location);
-              data.append("ip", ip);
+          const data = new URLSearchParams();
+          data.append("identity", identity);
+          data.append("message", $("#message").val());
+          data.append("factor", $("#factor").val());
 
-              var details = $(".detail")
-                .toArray()
-                .map((detail) => detail.value)
-                .reduce(function (result, value, index, array) {
-                  if (index % 2 === 0)
-                    result.push(array.slice(index, index + 2));
-                  return result;
-                }, []);
+          var details = $(".detail")
+            .toArray()
+            .map((detail) => detail.value)
+            .reduce(function (result, value, index, array) {
+              if (index % 2 === 0) result.push(array.slice(index, index + 2));
+              return result;
+            }, []);
 
-              details.forEach((pair) => {
-                if (pair[0] !== "") data.append(pair[0], pair[1]);
-              });
+          details.forEach((pair) => {
+            if (pair[0] !== "") data.append(pair[0], pair[1]);
+          });
 
-              return fetch("./create-challenge", {
-                method: "POST",
-                body: data,
-              });
-            });
+          return fetch("./create-challenge", {
+            method: "POST",
+            body: data,
+          });
         })
         .then((resp) => resp.json())
         .then(({ status, sid, identity, error }) => {
