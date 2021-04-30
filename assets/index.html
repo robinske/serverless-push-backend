@@ -178,10 +178,7 @@
         method: "POST",
         body: identityData,
       })
-        .then((resp) => {
-          console.log(resp);
-          return resp.json();
-        })
+        .then((resp) => resp.json())
         .then(({ identity }) => {
           const data = new URLSearchParams();
           data.append("identity", identity);
